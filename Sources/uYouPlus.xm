@@ -81,11 +81,11 @@ static BOOL findCell(ASNodeController *nodeController, NSArray <NSString *> *ide
         if (IS_ENABLED(@"hideRemixButton_enabled") && findCell(nodeController, @[@"id.video.remix.button"])) {
             return CGSizeZero;
         }
-        
+
         if (IS_ENABLED(@"hideClipButton_enabled") && findCell(nodeController, @[@"clip_button.eml"])) {
             return CGSizeZero;
         }
-        
+
         if (IS_ENABLED(@"hideDownloadButton_enabled") && findCell(nodeController, @[@"id.ui.add_to.offline.button"])) {
             return CGSizeZero;
         }
@@ -171,8 +171,8 @@ static BOOL findCell(ASNodeController *nodeController, NSArray <NSString *> *ide
 %hook _ASDisplayView
 - (void)didMoveToWindow {
     %orig;
-    if ((IS_ENABLED(@"hideBuySuperThanks_enabled")) && ([self.accessibilityIdentifier isEqualToString:@"id.elements.components.suggested_action"])) { 
-        self.hidden = YES; 
+    if ((IS_ENABLED(@"hideBuySuperThanks_enabled")) && ([self.accessibilityIdentifier isEqualToString:@"id.elements.components.suggested_action"])) {
+        self.hidden = YES;
     }
 }
 %end
@@ -227,7 +227,7 @@ static BOOL findCell(ASNodeController *nodeController, NSArray <NSString *> *ide
 
 // Hide upper bar
 %group gHideChipBar
-%hook YTMySubsFilterHeaderView 
+%hook YTMySubsFilterHeaderView
 - (void)setChipFilterView:(id)arg1 {}
 %end
 
@@ -252,22 +252,22 @@ static BOOL findCell(ASNodeController *nodeController, NSArray <NSString *> *ide
 %hook UIDevice
 - (long long)userInterfaceIdiom {
     return NO;
-} 
+}
 %end
 %hook UIStatusBarStyleAttributes
 - (long long)idiom {
     return YES;
-} 
+}
 %end
 %hook UIKBTree
 - (long long)nativeIdiom {
     return YES;
-} 
+}
 %end
 %hook UIKBRenderer
 - (long long)assetIdiom {
     return YES;
-} 
+}
 %end
 %end
 
@@ -334,11 +334,28 @@ static BOOL findCell(ASNodeController *nodeController, NSArray <NSString *> *ide
 // %end
 
 // A/B flags
-%hook YTColdConfig 
+%hook YTColdConfig
 // YouRememberCaption: https://poomsmart.github.io/repo/depictions/youremembercaption.html
 - (BOOL)respectDeviceCaptionSetting { return NO; }
 // Swipe right to dismiss the right panel in fullscreen mode
 - (BOOL)isLandscapeEngagementPanelSwipeRightToDismissEnabled { return YES; }
+%end
+
+%hook NSJSONSerialization
++ (id)dataWithJSONObject:(id)arg1 options:(unsigned long long)arg2 error:(id*)arg3
+{
+	@try {
+		if(arg1 && ([arg1 isKindOfClass:[NSDictionary class]] || [arg1 isKindOfClass:[NSMutableDictionary class]]) ) {
+			if(arg1[@"device_challenge_request"] != nil) {
+				NSMutableDictionary *MutRet = [arg1 mutableCopy];
+				[MutRet removeObjectForKey:@"device_challenge_request"];
+				arg1 = MutRet;
+			}
+		}
+	}@catch(NSException*e){
+	}
+	return %orig(arg1, arg2, arg3);
+}
 %end
 
 # pragma mark - Constructor
@@ -357,22 +374,22 @@ static BOOL findCell(ASNodeController *nodeController, NSArray <NSString *> *ide
     if (IS_ENABLED(@"iPhoneLayout_enabled") && (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad)) {
         %init(giPhoneLayout);
     }
-    
+
     // Change the default value of some options
     NSArray *allKeys = [[[NSUserDefaults standardUserDefaults] dictionaryRepresentation] allKeys];
     if (![allKeys containsObject:@"hidePlayNextInQueue_enabled"]) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hidePlayNextInQueue_enabled"];
     }
-    if (![allKeys containsObject:@"relatedVideosAtTheEndOfYTVideos"]) { 
-       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"relatedVideosAtTheEndOfYTVideos"]; 
+    if (![allKeys containsObject:@"relatedVideosAtTheEndOfYTVideos"]) {
+       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"relatedVideosAtTheEndOfYTVideos"];
     }
-    if (![allKeys containsObject:@"shortsProgressBar"]) { 
-       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"shortsProgressBar"]; 
+    if (![allKeys containsObject:@"shortsProgressBar"]) {
+       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"shortsProgressBar"];
     }
-    if (![allKeys containsObject:@"RYD-ENABLED"]) { 
-       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"RYD-ENABLED"]; 
+    if (![allKeys containsObject:@"RYD-ENABLED"]) {
+       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"RYD-ENABLED"];
     }
-    if (![allKeys containsObject:@"YouPiPEnabled"]) { 
-       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"YouPiPEnabled"]; 
+    if (![allKeys containsObject:@"YouPiPEnabled"]) {
+       [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"YouPiPEnabled"];
     }
 }
